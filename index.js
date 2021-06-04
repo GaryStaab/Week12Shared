@@ -156,10 +156,10 @@ function createNewMaintenanceButton(vehicle) {
     btn.className = 'btn btn-secondary';
     btn.innerHTML = 'Create';
     btn.onclick = () => {
-        vehicle.maintenanceItems.push(new MaintItem(getValue(`maintenance-input-${vehicle.id}`),
-            getValue(`mileage-input-${vehicle.id}`),
-            getValue(`datePerformed-input-${vehicle.id}`)))
-        displayVehicles();
+        vehicle.maintenanceItems.push(new MaintItem(getValue(`maintenance-input-${vehicle._id}`),
+            getValue(`mileage-input-${vehicle._id}`),
+            getValue(`datePerformed-input-${vehicle._id}`)));
+        DOMManager.updateVehicle(vehicle);
     };
     return btn;
 }
@@ -190,17 +190,17 @@ function createVehicleTable(vehicle) {
     let maintenanceInputTh = document.createElement('th');
 
     let maintenanceInput = document.createElement('input');
-    maintenanceInput.setAttribute('id', `maintenance-input-${vehicle.id}`);
+    maintenanceInput.setAttribute('id', `maintenance-input-${vehicle._id}`);
     maintenanceInput.setAttribute('type', 'text');
     maintenanceInput.setAttribute('class', 'form-control');
 
     let mileageInput = document.createElement('input');
-    mileageInput.setAttribute('id', `mileage-input-${vehicle.id}`);
+    mileageInput.setAttribute('id', `mileage-input-${vehicle._id}`);
     mileageInput.setAttribute('type', 'text');
     mileageInput.setAttribute('class', 'form-control');
 
     let datePerformedInput = document.createElement('input');
-    datePerformedInput.setAttribute('id', `datePerformed-input-${vehicle.id}`);
+    datePerformedInput.setAttribute('id', `datePerformed-input-${vehicle._id}`);
     datePerformedInput.setAttribute('type', 'date');
     datePerformedInput.setAttribute('class', 'form-control');
 
@@ -233,6 +233,13 @@ class DOMManager {
             })
     }
     
+    static updateVehicle(vehicle) {
+        VehicleService.updateVehicle(vehicle)
+            .then(() => {
+                return DOMManager.getAllVehicles();
+            })
+    }
+
     static deleteVehicle(id) {
         VehicleService.deleteVehicle(id)
             .then(() => {
