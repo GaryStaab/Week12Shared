@@ -5,44 +5,81 @@
 
 // Define Vehicle class
 class Vehicle {
-    constructor(id, make, model, year) {
-        this.id = id;
+    constructor(make, model, year) {
         this.make = make;
         this.model = model;
         this.year = year;
         this.maintenanceItems = [];
     }
-    // addVehicle(id, make, model, year){
-    //     this.vehicles.push(new Vehicle(make, model, year));
-    // }
-    // deleteVehicle(index) {
-    //     this.vehicles.split(index, 1);
-    // }
 }
 
 // Define Maintenance Items class
 class MaintItem {
-    constructor(maintenance,mileage,datePerformed) {
+    constructor(maintenance, mileage, datePerformed) {
         this.maintenance = maintenance;
         this.mileage = mileage;
         this.datePerformed = datePerformed;
     }
 }
 
-let vehicles = [];
-let vehicleId = 0;
+class VehicleService {
+    static url = 'https://crudcrud.com/api/1cdde10bbe7144158a73d7e9d9cc6103/vehicles';
+
+    static getAllVehicles() {
+        return $.get(this.url);
+    }
+
+    static getVehicle(id) {
+        return $.get(this.url + `/${id}`);
+    }
+
+    // static createVehicle(vehicle) {
+    //     console.log(vehicle);
+    //     return $.post(this.url, JSON.stringify(vehicle));
+    // }
+
+    static createVehicle(vehicle) {
+        return $.ajax({
+            url: this.url,
+            dataType: 'json',
+            data: JSON.stringify(vehicle),
+            contentType: 'application/json',
+            type: 'POST'
+        })
+    }
+
+    static updateVehicle(vehicle) {
+        return $.ajax({
+            url: this.url + `/${vehicle._id}`,
+            dataType: 'json',
+            data: JSON.stringify(vehicle),
+            contentType: 'application/json',
+            type: 'PUT'
+        })
+    }
+
+    static deleteVehicle(id) {
+        return $.ajax({
+            url: this.url + `/${id}`,
+            type: 'DELETE'
+        });
+    }
+
+}
 
 onClick('new-vehicle', () => {
-    vehicles.push(new Vehicle(vehicleId++,
-        getValue('new-vehicle-make'),
+    // vehicles.push(new Vehicle(vehicleId++,
+    //     getValue('new-vehicle-make'),
+    //     getValue('new-vehicle-model'),
+    //     getValue('new-vehicle-year')
+    // ));
+    DOMManager.createVehicle(getValue('new-vehicle-make'),
         getValue('new-vehicle-model'),
         getValue('new-vehicle-year')
-    ));
+    );
     clearValue('new-vehicle-make');
     clearValue('new-vehicle-model');
     clearValue('new-vehicle-year');
-
-    displayVehicles();
 });
 
 function onClick(id, action) {
@@ -59,7 +96,7 @@ function clearValue(id) {
     document.getElementById(id).value = "";
 }
 
-function displayVehicles() {
+function displayVehicles(vehicles) {
     let vehicleDiv = document.getElementById('vehicles');
     clearElement(vehicleDiv);
     for (vehicle of vehicles) {
@@ -75,19 +112,17 @@ function displayVehicles() {
     }
 }
 
-function createDeleteVehicleButton(vehicle){
+function createDeleteVehicleButton(vehicle) {
     let btn = document.createElement('button');
     btn.className = 'btn btn-secondary';
     btn.innerHTML = 'Delete';
     btn.onclick = () => {
-        let index = vehicles.indexOf(vehicle);
-        vehicles.splice(index, 1);
-        displayVehicles();
+        DOMManager.deleteVehicle(vehicle._id);
     };
     return btn;
 }
 
-function createDeleteMaintenanceItemRow(vehicle, maintenanceItem){
+function createDeleteMaintenanceItemRow(vehicle, maintenanceItem) {
     let btn = document.createElement('button');
     btn.className = 'btn btn-secondary';
     btn.innerHTML = 'Delete';
@@ -99,7 +134,7 @@ function createDeleteMaintenanceItemRow(vehicle, maintenanceItem){
     return btn;
 }
 
-function createMaintenanceItemRow(vehicle, table, maintenanceItem){
+function createMaintenanceItemRow(vehicle, table, maintenanceItem) {
     let row = table.insertRow(2);
     row.insertCell(0).innerHTML = maintenanceItem.maintenance;
     row.insertCell(1).innerHTML = maintenanceItem.mileage;
@@ -122,8 +157,8 @@ function createNewMaintenanceButton(vehicle) {
     btn.innerHTML = 'Create';
     btn.onclick = () => {
         vehicle.maintenanceItems.push(new MaintItem(getValue(`maintenance-input-${vehicle.id}`),
-        getValue(`mileage-input-${vehicle.id}`),
-        getValue(`datePerformed-input-${vehicle.id}`)))
+            getValue(`mileage-input-${vehicle.id}`),
+            getValue(`datePerformed-input-${vehicle.id}`)))
         displayVehicles();
     };
     return btn;
@@ -182,4 +217,28 @@ function createVehicleTable(vehicle) {
     formRow.appendChild(maintenanceInputTh);
 
     return table;
+}
+
+class DOMManager {
+    static vehicles;
+
+    static getAllVehicles() {
+        VehicleService.getAllVehicles().then(vehicles => displayVehicles(vehicles));
+    }
+
+    static createVehicle(make, model, year) {
+        VehicleService.createVehicle(new Vehicle(make, model, year))
+            .then(() => {
+                return VehicleService.getAllVehicles();
+            })
+            .then((vehicles) => displayVehicles(vehicles));
+    }
+    
+    static deleteVehicle(id) {
+        VehicleService.deleteVehicle(id)
+            .then(() => {
+                return VehicleService.getAllVehicles();
+            })
+            .then((vehicles) => displayVehicles(vehicles));
+    }
 }
