@@ -242,3 +242,5 @@ class DOMManager {
             .then((vehicles) => displayVehicles(vehicles));
     }
 }
+
+DOMdisplayVehicles();
