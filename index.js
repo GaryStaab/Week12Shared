@@ -229,16 +229,16 @@ class DOMManager {
     static createVehicle(make, model, year) {
         VehicleService.createVehicle(new Vehicle(make, model, year))
             .then(() => {
-                return VehicleService.getAllVehicles();
+                return DOMManager.getAllVehicles();
             })
-            .then((vehicles) => displayVehicles(vehicles));
     }
     
     static deleteVehicle(id) {
         VehicleService.deleteVehicle(id)
             .then(() => {
-                return VehicleService.getAllVehicles();
+                return DOMManager.getAllVehicles();
             })
-            .then((vehicles) => displayVehicles(vehicles));
     }
 }
+
+DOMManager.getAllVehicles();
