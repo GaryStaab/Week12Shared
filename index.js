@@ -117,9 +117,7 @@ function createDeleteVehicleButton(vehicle) {
     btn.className = 'btn btn-secondary';
     btn.innerHTML = 'Delete';
     btn.onclick = () => {
-        let index = vehicles.indexOf(vehicle);
-        vehicles.splice(index, 1);
-        displayVehicles();
+        DOMManager.deleteVehicle(vehicle._id);
     };
     return btn;
 }
