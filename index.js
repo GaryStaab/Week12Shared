@@ -23,7 +23,7 @@ class MaintItem {
 }
 
 class VehicleService {
-    static url = 'https://crudcrud.com/api/1cdde10bbe7144158a73d7e9d9cc6103/vehicles';
+    static url = 'https://crudcrud.com/api/023a2a4526444b1286e42452c71037fd/vehicles';
 
     static getAllVehicles() {
         return $.get(this.url);
