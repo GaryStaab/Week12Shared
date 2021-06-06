@@ -23,7 +23,7 @@ class MaintItem {
 }
 
 class VehicleService {
-    static url = 'https://crudcrud.com/api/1cdde10bbe7144158a73d7e9d9cc6103/vehicles';
+    static url = 'https://crudcrud.com/api/8376b3d315d24b37b46ad8d06f1f1db8/vehicles';
 
     static getAllVehicles() {
         return $.get(this.url);
@@ -39,6 +39,7 @@ class VehicleService {
     // }
 
     static createVehicle(vehicle) {
+
         return $.ajax({
             url: this.url,
             dataType: 'json',
@@ -48,9 +49,9 @@ class VehicleService {
         })
     }
 
-    static updateVehicle(vehicle) {
+    static updateVehicle(vehicle, savedID) {
         return $.ajax({
-            url: this.url + `/${vehicle._id}`,
+            url: this.url + `/${savedID}`,
             dataType: 'json',
             data: JSON.stringify(vehicle),
             contentType: 'application/json',
@@ -129,7 +130,7 @@ function createDeleteMaintenanceItemRow(vehicle, maintenanceItem) {
     btn.onclick = () => {
         let index = vehicle.maintenanceItems.indexOf(maintenanceItem);
         vehicle.maintenanceItems.splice(index, 1);
-        displayVehicles();
+        DOMManager.updateVehicle(vehicle);
     };
     return btn;
 }
@@ -156,10 +157,10 @@ function createNewMaintenanceButton(vehicle) {
     btn.className = 'btn btn-secondary';
     btn.innerHTML = 'Create';
     btn.onclick = () => {
-        vehicle.maintenanceItems.push(new MaintItem(getValue(`maintenance-input-${vehicle.id}`),
-            getValue(`mileage-input-${vehicle.id}`),
-            getValue(`datePerformed-input-${vehicle.id}`)))
-        displayVehicles();
+        vehicle.maintenanceItems.push(new MaintItem(getValue(`maintenance-input-${vehicle._id}`),
+            getValue(`mileage-input-${vehicle._id}`),
+            getValue(`datePerformed-input-${vehicle._id}`)));
+        DOMManager.updateVehicle(vehicle);
     };
     return btn;
 }
@@ -190,17 +191,17 @@ function createVehicleTable(vehicle) {
     let maintenanceInputTh = document.createElement('th');
 
     let maintenanceInput = document.createElement('input');
-    maintenanceInput.setAttribute('id', `maintenance-input-${vehicle.id}`);
+    maintenanceInput.setAttribute('id', `maintenance-input-${vehicle._id}`);
     maintenanceInput.setAttribute('type', 'text');
     maintenanceInput.setAttribute('class', 'form-control');
 
     let mileageInput = document.createElement('input');
-    mileageInput.setAttribute('id', `mileage-input-${vehicle.id}`);
+    mileageInput.setAttribute('id', `mileage-input-${vehicle._id}`);
     mileageInput.setAttribute('type', 'text');
     mileageInput.setAttribute('class', 'form-control');
 
     let datePerformedInput = document.createElement('input');
-    datePerformedInput.setAttribute('id', `datePerformed-input-${vehicle.id}`);
+    datePerformedInput.setAttribute('id', `datePerformed-input-${vehicle._id}`);
     datePerformedInput.setAttribute('type', 'date');
     datePerformedInput.setAttribute('class', 'form-control');
 
@@ -229,16 +230,27 @@ class DOMManager {
     static createVehicle(make, model, year) {
         VehicleService.createVehicle(new Vehicle(make, model, year))
             .then(() => {
-                return VehicleService.getAllVehicles();
+                return DOMManager.getAllVehicles();
             })
-            .then((vehicles) => displayVehicles(vehicles));
     }
-    
+
+    static updateVehicle(vehicle) {
+        let savedID = vehicle._id;
+        delete vehicle['_id'];
+        console.log("We're here");
+        VehicleService.updateVehicle(vehicle, savedID)
+            .then(() => {
+                console.log("We're there");
+            })
+        return DOMManager.getAllVehicles();
+    }
+
     static deleteVehicle(id) {
         VehicleService.deleteVehicle(id)
             .then(() => {
-                return VehicleService.getAllVehicles();
+                return DOMManager.getAllVehicles();
             })
-            .then((vehicles) => displayVehicles(vehicles));
     }
 }
+
+DOMManager.getAllVehicles();
