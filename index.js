@@ -23,7 +23,7 @@ class MaintItem {
 }
 
 class VehicleService {
-    static url = 'https://crudcrud.com/api/023a2a4526444b1286e42452c71037fd/vehicles';
+    static url = 'https://crudcrud.com/api/8376b3d315d24b37b46ad8d06f1f1db8/vehicles';
 
     static getAllVehicles() {
         return $.get(this.url);
@@ -39,6 +39,7 @@ class VehicleService {
     // }
 
     static createVehicle(vehicle) {
+
         return $.ajax({
             url: this.url,
             dataType: 'json',
@@ -48,9 +49,9 @@ class VehicleService {
         })
     }
 
-    static updateVehicle(vehicle) {
+    static updateVehicle(vehicle, savedID) {
         return $.ajax({
-            url: this.url + `/${vehicle._id}`,
+            url: this.url + `/${savedID}`,
             dataType: 'json',
             data: JSON.stringify(vehicle),
             contentType: 'application/json',
@@ -129,7 +130,7 @@ function createDeleteMaintenanceItemRow(vehicle, maintenanceItem) {
     btn.onclick = () => {
         let index = vehicle.maintenanceItems.indexOf(maintenanceItem);
         vehicle.maintenanceItems.splice(index, 1);
-        displayVehicles();
+        DOMManager.updateVehicle(vehicle);
     };
     return btn;
 }
@@ -232,12 +233,16 @@ class DOMManager {
                 return DOMManager.getAllVehicles();
             })
     }
-    
+
     static updateVehicle(vehicle) {
-        VehicleService.updateVehicle(vehicle)
+        let savedID = vehicle._id;
+        delete vehicle['_id'];
+        console.log("We're here");
+        VehicleService.updateVehicle(vehicle, savedID)
             .then(() => {
-                return DOMManager.getAllVehicles();
+                console.log("We're there");
             })
+        return DOMManager.getAllVehicles();
     }
 
     static deleteVehicle(id) {
